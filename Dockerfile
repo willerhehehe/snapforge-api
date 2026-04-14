@@ -13,6 +13,7 @@ RUN playwright install --with-deps chromium
 
 COPY src/ src/
 
-EXPOSE 8080
+ENV PORT=8080
+EXPOSE ${PORT}
 
-CMD ["uvicorn", "snapforge.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD uvicorn snapforge.main:app --host 0.0.0.0 --port ${PORT}
