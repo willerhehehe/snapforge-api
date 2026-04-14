@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnapForge API — File Processing as a Service</title>
+<meta name="description" content="Screenshots, QR codes, OG images, image processing, and PDF generation via simple REST API calls.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--surface:#1e293b;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#3b82f6;--accent2:#8b5cf6;--green:#10b981;--code-bg:#0d1117;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:"SF Mono",SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+
+header{padding:20px 0;border-bottom:1px solid var(--border)}
+header .container{display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:20px;font-weight:700;letter-spacing:-0.5px}
+.logo span{color:var(--accent)}
+nav a{margin-left:28px;color:var(--muted);font-size:14px;font-weight:500}nav a:hover{color:var(--text);text-decoration:none}
+
+.hero{text-align:center;padding:80px 0 60px}
+.hero h1{font-size:48px;font-weight:800;letter-spacing:-1.5px;line-height:1.15;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:20px;color:var(--muted);margin-top:16px;max-width:600px;margin-left:auto;margin-right:auto}
+.hero-actions{margin-top:32px;display:flex;gap:12px;justify-content:center}
+.btn{display:inline-flex;align-items:center;padding:12px 24px;border-radius:8px;font-size:15px;font-weight:600;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#2563eb;text-decoration:none}
+.btn-outline{border:1px solid var(--border);color:var(--text)}.btn-outline:hover{border-color:var(--muted);text-decoration:none}
+
+.endpoints{padding:60px 0}
+.endpoints h2{font-size:28px;font-weight:700;text-align:center;margin-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;transition:border-color .15s}
+.card:hover{border-color:var(--accent)}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.card-method{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;font-family:var(--mono)}
+.card-method.get{background:#10b98120;color:var(--green)}.card-method.post{background:#3b82f620;color:var(--accent)}
+.card-path{font-family:var(--mono);font-size:14px;color:var(--text)}
+.card p{font-size:14px;color:var(--muted);margin-bottom:12px}
+.card-params{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.card-params span{display:inline-block;background:var(--code-bg);padding:2px 6px;border-radius:3px;margin:2px 4px 2px 0}
+
+.example{padding:60px 0;border-top:1px solid var(--border)}
+.example h2{font-size:28px;font-weight:700;text-align:center;margin-bottom:12px}
+.example>p{text-align:center;color:var(--muted);margin-bottom:32px}
+.code-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0}
+.code-tab{padding:10px 20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.code-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.code-block{display:none;background:var(--code-bg);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:20px;overflow-x:auto}
+.code-block.active{display:block}
+pre{font-family:var(--mono);font-size:13px;line-height:1.7;color:#c9d1d9}
+.code-wrapper{max-width:700px;margin:0 auto}
+
+.pricing{padding:60px 0;border-top:1px solid var(--border);text-align:center}
+.pricing h2{font-size:28px;font-weight:700;margin-bottom:12px}
+.pricing>p{color:var(--muted);margin-bottom:32px}
+.price-cards{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.price-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;width:280px;text-align:left}
+.price-card.featured{border-color:var(--accent);position:relative}
+.price-card .tier{font-size:14px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.price-card .price{font-size:36px;font-weight:800;margin:8px 0 4px}
+.price-card .price span{font-size:16px;font-weight:400;color:var(--muted)}
+.price-card .note{font-size:13px;color:var(--muted);margin-bottom:20px}
+.price-card ul{list-style:none;padding:0}
+.price-card li{font-size:14px;padding:6px 0;color:var(--muted)}
+.price-card li::before{content:"✓ ";color:var(--green);font-weight:700}
+
+footer{border-top:1px solid var(--border);padding:30px 0;text-align:center;color:var(--muted);font-size:13px}
+@media(max-width:640px){.hero h1{font-size:32px}.grid{grid-template-columns:1fr}.price-cards{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="container">
+  <div class="logo">Snap<span>Forge</span></div>
+  <nav>
+    <a href="#endpoints">Endpoints</a>
+    <a href="#examples">Examples</a>
+    <a href="#pricing">Pricing</a>
+    <a href="/docs">API Docs</a>
+  </nav>
+</div>
+</header>
+
+<section class="hero">
+<div class="container">
+  <h1>File Processing<br>as a Service</h1>
+  <p>Screenshots, QR codes, OG images, image processing, and PDF generation — one API key, zero infrastructure.</p>
+  <div class="hero-actions">
+    <a href="/docs" class="btn btn-primary">Interactive Docs</a>
+    <a href="#examples" class="btn btn-outline">Quick Start</a>
+  </div>
+</div>
+</section>
+
+<section class="endpoints" id="endpoints">
+<div class="container">
+  <h2>API Endpoints</h2>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-method get">GET</span>
+        <span class="card-path">/api/v1/screenshot</span>
+      </div>
+      <p>Capture a full-page or viewport screenshot of any URL using a headless Chromium browser.</p>
+      <div class="card-params"><span>url</span><span>width</span><span>height</span><span>full_page</span><span>format</span><span>wait_ms</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-method get">GET</span>
+        <span class="card-path">/api/v1/qr</span>
+      </div>
+      <p>Generate styled QR codes with custom colors, rounded/circle modules, and optional logo embedding.</p>
+      <div class="card-params"><span>data</span><span>size</span><span>style</span><span>fg_color</span><span>bg_color</span><span>format</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-method get">GET</span>
+        <span class="card-path">/api/v1/og-image</span>
+      </div>
+      <p>Generate Open Graph social sharing images with customizable title, subtitle, colors, and dimensions.</p>
+      <div class="card-params"><span>title</span><span>subtitle</span><span>bg_color</span><span>text_color</span><span>width</span><span>height</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-method post">POST</span>
+        <span class="card-path">/api/v1/image/resize</span>
+      </div>
+      <p>Resize uploaded images to specific dimensions with quality control and format conversion.</p>
+      <div class="card-params"><span>file</span><span>width</span><span>height</span><span>quality</span><span>output_format</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-method post">POST</span>
+        <span class="card-path">/api/v1/image/convert</span>
+      </div>
+      <p>Convert images between formats: PNG, JPEG, WebP with adjustable quality.</p>
+      <div class="card-params"><span>file</span><span>output_format</span><span>quality</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-method post">POST</span>
+        <span class="card-path">/api/v1/image/compress</span>
+      </div>
+      <p>Compress images to reduce file size while maintaining acceptable visual quality.</p>
+      <div class="card-params"><span>file</span><span>quality</span><span>output_format</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-method post">POST</span>
+        <span class="card-path">/api/v1/image/info</span>
+      </div>
+      <p>Extract metadata from an uploaded image: dimensions, format, color mode, and file size.</p>
+      <div class="card-params"><span>file</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-method post">POST</span>
+        <span class="card-path">/api/v1/pdf/from-html</span>
+      </div>
+      <p>Convert raw HTML to a PDF document with customizable page dimensions using Playwright.</p>
+      <div class="card-params"><span>html (body)</span><span>width</span><span>height</span></div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<section class="example" id="examples">
+<div class="container">
+  <h2>Quick Start</h2>
+  <p>Add the <code style="background:var(--code-bg);padding:2px 8px;border-radius:4px;font-family:var(--mono)">X-API-Key</code> header to every request. That's it.</p>
+
+  <div class="code-wrapper">
+    <div class="code-tabs">
+      <div class="code-tab active" data-tab="curl">cURL</div>
+      <div class="code-tab" data-tab="python">Python</div>
+      <div class="code-tab" data-tab="node">Node.js</div>
+    </div>
+
+    <div class="code-block active" id="tab-curl">
+<pre><span style="color:#8b949e"># Take a screenshot</span>
+curl "https://api.snapforge.dev/api/v1/screenshot?url=https://example.com" \
+  -H "X-API-Key: YOUR_KEY" \
+  -o screenshot.png
+
+<span style="color:#8b949e"># Generate a QR code</span>
+curl "https://api.snapforge.dev/api/v1/qr?data=https://mysite.com&amp;style=rounded" \
+  -H "X-API-Key: YOUR_KEY" \
+  -o qr.png
+
+<span style="color:#8b949e"># Convert HTML to PDF</span>
+curl -X POST "https://api.snapforge.dev/api/v1/pdf/from-html" \
+  -H "X-API-Key: YOUR_KEY" \
+  -H "Content-Type: text/html" \
+  -d "&lt;h1&gt;Invoice #1234&lt;/h1&gt;&lt;p&gt;Total: $99.00&lt;/p&gt;" \
+  -o invoice.pdf</pre>
+    </div>
+
+    <div class="code-block" id="tab-python">
+<pre><span style="color:#ff7b72">import</span> httpx
+
+API = <span style="color:#a5d6ff">"https://api.snapforge.dev/api/v1"</span>
+KEY = <span style="color:#a5d6ff">"YOUR_KEY"</span>
+headers = {<span style="color:#a5d6ff">"X-API-Key"</span>: KEY}
+
+<span style="color:#8b949e"># Screenshot</span>
+r = httpx.get(<span style="color:#a5d6ff">f"<span style="color:#79c0ff">{API}</span>/screenshot"</span>,
+    params={<span style="color:#a5d6ff">"url"</span>: <span style="color:#a5d6ff">"https://example.com"</span>},
+    headers=headers)
+open(<span style="color:#a5d6ff">"screenshot.png"</span>, <span style="color:#a5d6ff">"wb"</span>).write(r.content)
+
+<span style="color:#8b949e"># Resize image</span>
+<span style="color:#ff7b72">with</span> open(<span style="color:#a5d6ff">"photo.jpg"</span>, <span style="color:#a5d6ff">"rb"</span>) <span style="color:#ff7b72">as</span> f:
+    r = httpx.post(<span style="color:#a5d6ff">f"<span style="color:#79c0ff">{API}</span>/image/resize"</span>,
+        params={<span style="color:#a5d6ff">"width"</span>: 800, <span style="color:#a5d6ff">"output_format"</span>: <span style="color:#a5d6ff">"webp"</span>},
+        files={<span style="color:#a5d6ff">"file"</span>: f},
+        headers=headers)
+open(<span style="color:#a5d6ff">"resized.webp"</span>, <span style="color:#a5d6ff">"wb"</span>).write(r.content)</pre>
+    </div>
+
+    <div class="code-block" id="tab-node">
+<pre><span style="color:#ff7b72">const</span> API = <span style="color:#a5d6ff">"https://api.snapforge.dev/api/v1"</span>;
+<span style="color:#ff7b72">const</span> KEY = <span style="color:#a5d6ff">"YOUR_KEY"</span>;
+<span style="color:#ff7b72">const</span> headers = { <span style="color:#a5d6ff">"X-API-Key"</span>: KEY };
+
+<span style="color:#8b949e">// Screenshot</span>
+<span style="color:#ff7b72">const</span> res = <span style="color:#ff7b72">await</span> fetch(
+  <span style="color:#a5d6ff">`<span style="color:#79c0ff">${API}</span>/screenshot?url=https://example.com`</span>,
+  { headers }
+);
+<span style="color:#ff7b72">const</span> buf = Buffer.from(<span style="color:#ff7b72">await</span> res.arrayBuffer());
+<span style="color:#ff7b72">await</span> Bun.write(<span style="color:#a5d6ff">"screenshot.png"</span>, buf);
+
+<span style="color:#8b949e">// Generate OG image</span>
+<span style="color:#ff7b72">const</span> og = <span style="color:#ff7b72">await</span> fetch(
+  <span style="color:#a5d6ff">`<span style="color:#79c0ff">${API}</span>/og-image?title=My+Post&amp;subtitle=Read+more`</span>,
+  { headers }
+);
+<span style="color:#ff7b72">await</span> Bun.write(<span style="color:#a5d6ff">"og.png"</span>, Buffer.from(<span style="color:#ff7b72">await</span> og.arrayBuffer()));</pre>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="pricing" id="pricing">
+<div class="container">
+  <h2>Simple Pricing</h2>
+  <p>Pay only for what you use. No monthly minimums.</p>
+  <div class="price-cards">
+    <div class="price-card">
+      <div class="tier">Free</div>
+      <div class="price">$0 <span>/mo</span></div>
+      <div class="note">100 requests / month</div>
+      <ul>
+        <li>All endpoints included</li>
+        <li>Community support</li>
+        <li>1 API key</li>
+        <li>Rate limit: 10 req/min</li>
+      </ul>
+    </div>
+    <div class="price-card featured">
+      <div class="tier">Pro</div>
+      <div class="price">$9 <span>/mo</span></div>
+      <div class="note">10,000 requests / month</div>
+      <ul>
+        <li>All endpoints included</li>
+        <li>Priority support</li>
+        <li>5 API keys</li>
+        <li>Rate limit: 60 req/min</li>
+        <li>Webhook callbacks</li>
+      </ul>
+    </div>
+    <div class="price-card">
+      <div class="tier">Business</div>
+      <div class="price">$49 <span>/mo</span></div>
+      <div class="note">100,000 requests / month</div>
+      <ul>
+        <li>All endpoints included</li>
+        <li>Dedicated support</li>
+        <li>Unlimited API keys</li>
+        <li>Rate limit: 300 req/min</li>
+        <li>Custom domain</li>
+        <li>SLA guarantee</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<footer>
+<div class="container">
+  <p>SnapForge API &mdash; Built for developers who ship fast.</p>
+</div>
+</footer>
+
+<script>
+document.querySelectorAll('.code-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.code-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.code-block').forEach(b=>b.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
