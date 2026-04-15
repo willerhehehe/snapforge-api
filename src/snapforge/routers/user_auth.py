@@ -159,6 +159,6 @@ async def do_forgot_key(request: Request):
     from snapforge.services.email import send_api_key_email
     sent = send_api_key_email(email, customer["api_key"])
     if not sent:
-        return {"ok": True, "message": f"Your API Key is: {customer['api_key']}  (Email sending is not configured yet. Please save this key.)"}
+        return {"ok": False, "error": "Email service is not configured. Please contact the administrator to recover your API Key."}
 
     return {"ok": True, "message": "API Key has been sent to your email. Check your inbox (or spam folder)."}
