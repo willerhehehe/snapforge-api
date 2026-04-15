@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import stripe
 from fastapi import APIRouter, Request, HTTPException, Query
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse
 
 from snapforge.config import settings
 from snapforge.db import (
@@ -62,7 +62,7 @@ async def billing_success(session_id: str = Query(...)):
     subscription_id = session.subscription
 
     sub = stripe.Subscription.retrieve(subscription_id)
-    price_id = sub["items"]["data"][0]["price"]["id"]
+    price_id = sub.items.data[0].price.id
     tier = TIER_FROM_PRICE.get(price_id, "pro")
 
     customer = get_customer_by_email(email)
@@ -74,16 +74,29 @@ async def billing_success(session_id: str = Query(...)):
 
     create_subscription(
         customer["id"], subscription_id, price_id,
-        period_end=sub["current_period_end"],
+        period_end=str(sub.current_period_end),
     )
 
-    return JSONResponse({
-        "status": "success",
-        "tier": tier,
-        "api_key": customer["api_key"],
-        "requests_limit": customer["requests_limit"],
-        "message": f"Welcome! Your API key is: {customer['api_key']}",
-    })
+    api_key = customer["api_key"]
+    limit = customer["requests_limit"]
+    return HTMLResponse(f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SnapForge — Subscription Active</title>
+<style>*{{margin:0;padding:0;box-sizing:border-box}}body{{font-family:-apple-system,sans-serif;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}}
+.card{{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:48px;max-width:500px;text-align:center}}
+h1{{font-size:28px;margin-bottom:8px}}p{{color:#94a3b8;margin-bottom:24px}}
+.key{{background:#0d1117;border:1px solid #334155;border-radius:8px;padding:16px;font-family:monospace;font-size:14px;word-break:break-all;margin-bottom:24px;color:#3b82f6}}
+.badge{{display:inline-block;background:#3b82f620;color:#3b82f6;padding:4px 12px;border-radius:12px;font-size:13px;font-weight:600;margin-bottom:16px}}
+a{{color:#3b82f6;text-decoration:none}}a:hover{{text-decoration:underline}}
+</style></head><body><div class="card">
+<div class="badge">{tier.upper()} Plan</div>
+<h1>You're all set!</h1>
+<p>{limit:,} requests/month</p>
+<p style="color:#e2e8f0;font-size:14px;margin-bottom:8px">Your API Key:</p>
+<div class="key">{api_key}</div>
+<p style="font-size:13px">Save this key — you'll need it for every API call.</p>
+<p style="margin-top:24px"><a href="/docs">API Docs</a> &middot; <a href="/">Home</a></p>
+</div></body></html>""")
 
 
 @router.post("/billing/webhook")
