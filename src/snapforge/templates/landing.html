@@ -346,6 +346,7 @@ open(<span style="color:#a5d6ff">"resized.webp"</span>, <span style="color:#a5d6
         <li>1 API key</li>
         <li>Rate limit: 10 req/min</li>
       </ul>
+      <div style="margin-top:20px"><a href="#" class="btn btn-outline" style="width:100%;justify-content:center" onclick="promptEmail('free')">Get Free Key</a></div>
     </div>
     <div class="price-card featured">
       <div class="tier">Pro</div>
@@ -358,6 +359,7 @@ open(<span style="color:#a5d6ff">"resized.webp"</span>, <span style="color:#a5d6
         <li>Rate limit: 60 req/min</li>
         <li>Webhook callbacks</li>
       </ul>
+      <div style="margin-top:20px"><a href="#" class="btn btn-primary" style="width:100%;justify-content:center" onclick="promptEmail('pro')">Subscribe Pro</a></div>
     </div>
     <div class="price-card">
       <div class="tier">Business</div>
@@ -371,6 +373,7 @@ open(<span style="color:#a5d6ff">"resized.webp"</span>, <span style="color:#a5d6
         <li>Custom domain</li>
         <li>SLA guarantee</li>
       </ul>
+      <div style="margin-top:20px"><a href="#" class="btn btn-outline" style="width:100%;justify-content:center" onclick="promptEmail('business')">Subscribe Business</a></div>
     </div>
   </div>
 </div>
@@ -391,6 +394,18 @@ document.querySelectorAll('.code-tab').forEach(tab=>{
     document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
   });
 });
+function promptEmail(plan){
+  const email=prompt('Enter your email to '+(plan==='free'?'get a free API key':'subscribe')+':');
+  if(!email||!email.includes('@'))return;
+  if(plan==='free'){
+    fetch('/billing/free-key?email='+encodeURIComponent(email)).then(r=>r.json()).then(d=>{
+      if(d.api_key)alert('Your API key:\\n\\n'+d.api_key+'\\n\\nSave this key — it won\\'t be shown again.');
+      else alert(d.message||'Error creating key');
+    });
+  }else{
+    window.location.href='/checkout?plan='+plan+'&email='+encodeURIComponent(email);
+  }
+}
 </script>
 </body>
 </html>
