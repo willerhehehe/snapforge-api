@@ -62,7 +62,9 @@ async def billing_success(session_id: str = Query(...)):
     subscription_id = session.subscription
 
     sub = stripe.Subscription.retrieve(subscription_id)
-    price_id = sub.items.data[0].price.id
+    import json
+    sub_data = json.loads(str(sub))
+    price_id = sub_data["items"]["data"][0]["price"]["id"]
     tier = TIER_FROM_PRICE.get(price_id, "pro")
 
     customer = get_customer_by_email(email)
@@ -72,9 +74,10 @@ async def billing_success(session_id: str = Query(...)):
     else:
         customer = create_customer(email, stripe_customer_id=stripe_customer_id, tier=tier)
 
+    period_end = sub_data.get("current_period_end")
     create_subscription(
         customer["id"], subscription_id, price_id,
-        period_end=str(sub.current_period_end),
+        period_end=str(period_end) if period_end else None,
     )
 
     api_key = customer["api_key"]
