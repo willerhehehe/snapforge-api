@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
     base_url: str = ""
+    session_secret: str = "snapforge-session-secret-change-me"
+    smtp_user: str = ""
+    smtp_password: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "env_prefix": "SNAPFORGE_"}
 

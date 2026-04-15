@@ -106,6 +106,51 @@ def create_subscription(customer_id: int, stripe_subscription_id: str, stripe_pr
     conn.close()
 
 
+def get_all_customers() -> list[dict]:
+    conn = _conn()
+    rows = conn.execute("SELECT * FROM customers ORDER BY created_at DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def reset_usage(customer_id: int):
+    conn = _conn()
+    now = datetime.now(timezone.utc).isoformat()
+    conn.execute("UPDATE customers SET requests_used = 0, updated_at = ? WHERE id = ?", (now, customer_id))
+    conn.commit()
+    conn.close()
+
+
+def set_customer_tier(customer_id: int, tier: str):
+    limits = {"free": 100, "pro": 10000, "business": 100000}
+    now = datetime.now(timezone.utc).isoformat()
+    conn = _conn()
+    conn.execute(
+        "UPDATE customers SET tier = ?, requests_limit = ?, updated_at = ? WHERE id = ?",
+        (tier, limits.get(tier, 100), now, customer_id),
+    )
+    conn.commit()
+    conn.close()
+
+
+def regenerate_api_key(customer_id: int) -> str:
+    new_key = generate_api_key()
+    now = datetime.now(timezone.utc).isoformat()
+    conn = _conn()
+    conn.execute("UPDATE customers SET api_key = ?, updated_at = ? WHERE id = ?", (new_key, now, customer_id))
+    conn.commit()
+    conn.close()
+    return new_key
+
+
+def delete_customer(customer_id: int):
+    conn = _conn()
+    conn.execute("DELETE FROM subscriptions WHERE customer_id = ?", (customer_id,))
+    conn.execute("DELETE FROM customers WHERE id = ?", (customer_id,))
+    conn.commit()
+    conn.close()
+
+
 def increment_usage(api_key: str) -> bool:
     conn = _conn()
     row = conn.execute("SELECT requests_used, requests_limit FROM customers WHERE api_key = ?", (api_key,)).fetchone()

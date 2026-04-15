@@ -94,6 +94,7 @@ footer{border-top:1px solid var(--border);padding:30px 0;text-align:center;color
     <a href="#examples">Examples</a>
     <a href="#pricing">Pricing</a>
     <a href="/docs">API Docs</a>
+    <a href="/login" style="color:var(--accent);font-weight:600">Login</a>
   </nav>
 </div>
 </header>
@@ -399,12 +400,30 @@ function promptEmail(plan){
   if(!email||email.indexOf('@')===-1)return;
   if(plan==='free'){
     fetch('/billing/free-key?email='+encodeURIComponent(email)).then(function(r){return r.json()}).then(function(d){
-      if(d.api_key)window.alert('Your API key:\n\n'+d.api_key+'\n\nSave this key!');
+      if(d.api_key){showKeyModal(d.api_key);}
       else window.alert(d.message||'Error creating key');
     });
   }else{
     window.location.assign('/checkout?plan='+plan+'&email='+encodeURIComponent(email));
   }
+}
+function showKeyModal(key){
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;padding:24px';
+  overlay.innerHTML='<div style="background:#1e293b;border:1px solid #334155;border-radius:16px;padding:40px;max-width:480px;width:100%;text-align:center">'
+    +'<div style="font-size:32px;margin-bottom:8px">🔑</div>'
+    +'<h2 style="font-size:20px;margin-bottom:8px;color:#e2e8f0">Your API Key</h2>'
+    +'<p style="color:#f59e0b;font-size:14px;font-weight:600;margin-bottom:16px">⚠️ Please save this key! This is the only time it will be shown.</p>'
+    +'<div id="keyBox" style="background:#0d1117;border:1px solid #334155;border-radius:8px;padding:16px;font-family:monospace;font-size:14px;word-break:break-all;color:#3b82f6;cursor:pointer" onclick="navigator.clipboard.writeText(this.textContent)">'+key+'</div>'
+    +'<p style="color:#94a3b8;font-size:12px;margin-top:8px">Click the key to copy</p>'
+    +'<div style="margin-top:24px;display:flex;gap:12px;justify-content:center">'
+    +'<button onclick="navigator.clipboard.writeText(document.getElementById(\'keyBox\').textContent);this.textContent=\'Copied!\'" style="padding:10px 20px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Copy Key</button>'
+    +'<a href="/login" style="padding:10px 20px;background:#334155;color:#e2e8f0;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;display:inline-block">Go to Login →</a>'
+    +'</div>'
+    +'<p style="color:#94a3b8;font-size:12px;margin-top:16px">Forgot your key? Use <a href="/forgot-key" style="color:#3b82f6">Forgot API Key</a> to recover it via email.</p>'
+    +'</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
 }
 </script>
 </body>

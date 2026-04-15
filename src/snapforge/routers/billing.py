@@ -104,8 +104,9 @@ a{{color:#3b82f6;text-decoration:none}}a:hover{{text-decoration:underline}}
 <p>{limit:,} requests/month</p>
 <p style="color:#e2e8f0;font-size:14px;margin-bottom:8px">Your API Key:</p>
 <div class="key">{api_key}</div>
-<p style="font-size:13px">Save this key — you'll need it for every API call.</p>
-<p style="margin-top:24px"><a href="/docs">API Docs</a> &middot; <a href="/">Home</a></p>
+<p style="color:#f59e0b;font-size:13px;font-weight:600">⚠️ Please save this key! You'll need it for every API call.</p>
+<p style="font-size:13px;margin-top:8px">Forgot your key? Use <a href="/forgot-key">Forgot API Key</a> to recover it via email.</p>
+<p style="margin-top:24px"><a href="/login">Login to Dashboard</a> &middot; <a href="/docs">API Docs</a> &middot; <a href="/">Home</a></p>
 </div></body></html>""")
 
 
