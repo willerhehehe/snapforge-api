@@ -30,7 +30,11 @@ def _verify(token: str) -> str | None:
 
 def create_session(response: Response, api_key: str, role: str = "user"):
     payload = json.dumps({"key": api_key, "role": role, "exp": int(time.time()) + MAX_AGE})
-    response.set_cookie(COOKIE_NAME, _sign(payload), max_age=MAX_AGE, httponly=True, samesite="lax")
+    is_prod = bool(settings.base_url)
+    response.set_cookie(
+        COOKIE_NAME, _sign(payload), max_age=MAX_AGE,
+        httponly=True, samesite="lax", secure=is_prod,
+    )
 
 
 def get_session(request: Request) -> dict | None:

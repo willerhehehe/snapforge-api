@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hmac
+
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 
@@ -81,7 +83,7 @@ async def do_login(request: Request):
 
     from fastapi.responses import JSONResponse
 
-    if settings.api_key and key == settings.api_key:
+    if settings.api_key and hmac.compare_digest(key, settings.api_key):
         resp = JSONResponse({"ok": True, "redirect": "/admin"})
         create_session(resp, key, role="admin")
         return resp

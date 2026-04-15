@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from html import escape
+
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
@@ -31,10 +33,14 @@ async def admin_page(request: Request):
         bar_color = "#10b981" if pct < 80 else "#f59e0b" if pct < 100 else "#ef4444"
         tier_colors = {"free": "#94a3b8", "pro": "#3b82f6", "business": "#8b5cf6"}
         tier_color = tier_colors.get(c["tier"], "#94a3b8")
+        cid = int(c['id'])
+        email_esc = escape(c['email'])
+        tier_esc = escape(c['tier'].upper())
+        key_esc = escape(c['api_key'])
         rows += f"""<tr>
-<td>{c['id']}</td>
-<td>{c['email']}</td>
-<td><span style="color:{tier_color};font-weight:600">{c['tier'].upper()}</span></td>
+<td>{cid}</td>
+<td>{email_esc}</td>
+<td><span style="color:{tier_color};font-weight:600">{tier_esc}</span></td>
 <td>
   <div style="display:flex;align-items:center;gap:8px">
     <span>{c['requests_used']:,}/{c['requests_limit']:,}</span>
@@ -43,17 +49,17 @@ async def admin_page(request: Request):
     </div>
   </div>
 </td>
-<td style="font-family:monospace;font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{c['api_key']}">{c['api_key']}</td>
-<td>{c['created_at'][:10]}</td>
+<td style="font-family:monospace;font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{key_esc}">{key_esc}</td>
+<td>{escape(c['created_at'][:10])}</td>
 <td>
-  <select onchange="setTier({c['id']},this.value)" style="background:#0d1117;color:#e2e8f0;border:1px solid #334155;border-radius:4px;padding:2px 4px;font-size:12px">
+  <select onchange="setTier({cid},this.value)" style="background:#0d1117;color:#e2e8f0;border:1px solid #334155;border-radius:4px;padding:2px 4px;font-size:12px">
     <option value="free" {"selected" if c["tier"]=="free" else ""}>Free</option>
     <option value="pro" {"selected" if c["tier"]=="pro" else ""}>Pro</option>
     <option value="business" {"selected" if c["tier"]=="business" else ""}>Business</option>
   </select>
-  <button onclick="resetUsage({c['id']})" class="btn-sm" title="Reset usage">↻</button>
-  <button onclick="regenKey({c['id']})" class="btn-sm" title="Regenerate key">🔑</button>
-  <button onclick="deleteUser({c['id']})" class="btn-sm btn-danger" title="Delete">✕</button>
+  <button onclick="resetUsage({cid})" class="btn-sm" title="Reset usage">↻</button>
+  <button onclick="regenKey({cid})" class="btn-sm" title="Regenerate key">🔑</button>
+  <button onclick="deleteUser({cid})" class="btn-sm btn-danger" title="Delete">✕</button>
 </td></tr>"""
 
     return HTMLResponse(f"""<!DOCTYPE html>
@@ -126,6 +132,9 @@ async def admin_api(request: Request):
     body = await request.json()
     action = body.get("action")
     cid = body.get("id")
+
+    if not isinstance(cid, int) or cid < 1:
+        return {"ok": False, "error": "Invalid customer ID"}
 
     if action == "set_tier":
         tier = body.get("tier", "free")

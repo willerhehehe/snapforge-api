@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from html import escape
+
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 
+from snapforge.config import settings
 from snapforge.db import get_customer_by_api_key, regenerate_api_key
 from snapforge.session import get_session
 
@@ -24,8 +27,9 @@ async def dashboard(request: Request) -> HTMLResponse:
     limit = customer["requests_limit"]
     pct = round(used / limit * 100, 1) if limit > 0 else 0
     bar_color = "#10b981" if pct < 80 else "#f59e0b" if pct < 100 else "#ef4444"
-    api_key = customer["api_key"]
-    email = customer["email"]
+    api_key = escape(customer["api_key"])
+    email = escape(customer["email"])
+    base_url = escape(settings.base_url or "https://snapforge-api-production.up.railway.app")
 
     return HTMLResponse(f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -80,7 +84,7 @@ a{{color:#3b82f6;text-decoration:none}}a:hover{{text-decoration:underline}}
 <div class="card">
   <h3>Quick Test</h3>
   <div style="background:#0d1117;border-radius:8px;padding:12px;font-family:monospace;font-size:12px;overflow-x:auto;color:#c9d1d9">
-    curl "https://snapforge-api-production.up.railway.app/api/v1/qr?data=hello" \\<br>
+    curl "{base_url}/api/v1/qr?data=hello" \\<br>
     &nbsp;&nbsp;-H "X-API-Key: {api_key}" -o qr.png
   </div>
 </div>

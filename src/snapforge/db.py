@@ -153,14 +153,12 @@ def delete_customer(customer_id: int):
 
 def increment_usage(api_key: str) -> bool:
     conn = _conn()
-    row = conn.execute("SELECT requests_used, requests_limit FROM customers WHERE api_key = ?", (api_key,)).fetchone()
-    if not row:
-        conn.close()
-        return False
-    if row["requests_used"] >= row["requests_limit"]:
-        conn.close()
-        return False
-    conn.execute("UPDATE customers SET requests_used = requests_used + 1 WHERE api_key = ?", (api_key,))
+    cur = conn.execute(
+        "UPDATE customers SET requests_used = requests_used + 1 "
+        "WHERE api_key = ? AND requests_used < requests_limit",
+        (api_key,),
+    )
     conn.commit()
+    updated = cur.rowcount > 0
     conn.close()
-    return True
+    return updated

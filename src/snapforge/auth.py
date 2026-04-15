@@ -1,3 +1,5 @@
+import hmac
+
 from fastapi import Header, HTTPException, status
 
 from snapforge.config import settings
@@ -5,7 +7,7 @@ from snapforge.db import get_customer_by_api_key, increment_usage
 
 
 def verify_api_key(x_api_key: str = Header(..., alias="X-API-Key")) -> str:
-    if settings.api_key and x_api_key == settings.api_key:
+    if settings.api_key and hmac.compare_digest(x_api_key, settings.api_key):
         return x_api_key
 
     customer = get_customer_by_api_key(x_api_key)

@@ -24,7 +24,7 @@ TIER_FROM_PRICE = {v: k for k, v in PRICE_IDS.items()}
 async def free_key(email: str = Query(...)):
     existing = get_customer_by_email(email)
     if existing:
-        return {"message": "Account already exists. Check your email for your API key.", "api_key": existing["api_key"]}
+        return {"message": "Account already exists. Use Forgot API Key to recover it, or contact the administrator."}
     customer = create_customer(email, tier="free")
     return {"api_key": customer["api_key"], "tier": "free", "requests_limit": 100}
 
