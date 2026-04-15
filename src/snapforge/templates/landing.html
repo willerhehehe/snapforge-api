@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SnapForge API — File Processing as a Service</title>
-<meta name="description" content="Screenshots, QR codes, OG images, image processing, and PDF generation via simple REST API calls.">
+<title>SnapForge — File Processing for Developers & AI Agents</title>
+<meta name="description" content="Screenshots, QR codes, OG images, image processing, and PDF generation — REST API + MCP Server for AI agents.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0f172a;--surface:#1e293b;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#3b82f6;--accent2:#8b5cf6;--green:#10b981;--code-bg:#0d1117;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:"SF Mono",SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace}
@@ -65,6 +65,20 @@ pre{font-family:var(--mono);font-size:13px;line-height:1.7;color:#c9d1d9}
 .price-card li{font-size:14px;padding:6px 0;color:var(--muted)}
 .price-card li::before{content:"✓ ";color:var(--green);font-weight:700}
 
+.mcp{padding:60px 0;border-top:1px solid var(--border)}
+.mcp h2{font-size:28px;font-weight:700;text-align:center;margin-bottom:12px}
+.mcp>div>p{text-align:center;color:var(--muted);margin-bottom:32px}
+.mcp-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;margin:0 auto}
+.mcp-left{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px}
+.mcp-left h3{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--accent)}
+.mcp-left ul{list-style:none;padding:0}
+.mcp-left li{font-size:14px;padding:8px 0;color:var(--muted);border-bottom:1px solid var(--border)}
+.mcp-left li:last-child{border-bottom:none}
+.mcp-left li code{background:var(--code-bg);padding:2px 6px;border-radius:3px;font-family:var(--mono);font-size:13px;color:var(--text)}
+.mcp-right{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;padding:28px;overflow-x:auto}
+.mcp-right h3{font-size:14px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.mcp-badge{display:inline-block;background:var(--accent2);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;margin-left:8px;vertical-align:middle}
+@media(max-width:640px){.mcp-grid{grid-template-columns:1fr}}
 footer{border-top:1px solid var(--border);padding:30px 0;text-align:center;color:var(--muted);font-size:13px}
 @media(max-width:640px){.hero h1{font-size:32px}.grid{grid-template-columns:1fr}.price-cards{flex-direction:column;align-items:center}}
 </style>
@@ -75,6 +89,7 @@ footer{border-top:1px solid var(--border);padding:30px 0;text-align:center;color
 <div class="container">
   <div class="logo">Snap<span>Forge</span></div>
   <nav>
+    <a href="#mcp">MCP</a>
     <a href="#endpoints">Endpoints</a>
     <a href="#examples">Examples</a>
     <a href="#pricing">Pricing</a>
@@ -85,11 +100,49 @@ footer{border-top:1px solid var(--border);padding:30px 0;text-align:center;color
 
 <section class="hero">
 <div class="container">
-  <h1>File Processing<br>as a Service</h1>
-  <p>Screenshots, QR codes, OG images, image processing, and PDF generation — one API key, zero infrastructure.</p>
+  <h1>File Processing<br>for Developers & AI Agents</h1>
+  <p>Screenshots, QR codes, OG images, image processing, and PDF generation — REST API + MCP Server. One tool, two interfaces.</p>
   <div class="hero-actions">
-    <a href="/docs" class="btn btn-primary">Interactive Docs</a>
-    <a href="#examples" class="btn btn-outline">Quick Start</a>
+    <a href="#mcp" class="btn btn-primary">MCP for Agents</a>
+    <a href="/docs" class="btn btn-outline">REST API Docs</a>
+  </div>
+</div>
+</section>
+
+<section class="mcp" id="mcp">
+<div class="container">
+  <h2>MCP Server <span class="mcp-badge">NEW</span></h2>
+  <p>Give your AI agent superpowers. SnapForge is an MCP-compatible tool server &mdash; Claude Code, Cursor, and any MCP client can use it natively.</p>
+  <div class="mcp-grid">
+    <div class="mcp-left">
+      <h3>8 Agent Tools</h3>
+      <ul>
+        <li><code>take_screenshot</code> &mdash; Capture any webpage</li>
+        <li><code>html_to_pdf</code> &mdash; Convert HTML to PDF</li>
+        <li><code>generate_qr_code</code> &mdash; Styled QR codes</li>
+        <li><code>generate_social_image</code> &mdash; OG preview images</li>
+        <li><code>resize_image_tool</code> &mdash; Resize images</li>
+        <li><code>convert_image_tool</code> &mdash; Format conversion</li>
+        <li><code>compress_image_tool</code> &mdash; Reduce file size</li>
+        <li><code>get_image_info_tool</code> &mdash; Read metadata</li>
+      </ul>
+    </div>
+    <div class="mcp-right">
+      <h3>Setup (30 seconds)</h3>
+<pre style="margin-bottom:16px"><span style="color:#8b949e"># Install</span>
+pip install snapforge-api
+
+<span style="color:#8b949e"># Run MCP server</span>
+snapforge-mcp</pre>
+      <h3>Claude Code / Cursor Config</h3>
+<pre>{
+  <span style="color:#a5d6ff">"mcpServers"</span>: {
+    <span style="color:#a5d6ff">"snapforge"</span>: {
+      <span style="color:#a5d6ff">"command"</span>: <span style="color:#a5d6ff">"snapforge-mcp"</span>
+    }
+  }
+}</pre>
+    </div>
   </div>
 </div>
 </section>
@@ -182,12 +235,38 @@ footer{border-top:1px solid var(--border);padding:30px 0;text-align:center;color
 
   <div class="code-wrapper">
     <div class="code-tabs">
-      <div class="code-tab active" data-tab="curl">cURL</div>
+      <div class="code-tab active" data-tab="mcp">MCP (Agent)</div>
+      <div class="code-tab" data-tab="curl">cURL</div>
       <div class="code-tab" data-tab="python">Python</div>
       <div class="code-tab" data-tab="node">Node.js</div>
     </div>
 
-    <div class="code-block active" id="tab-curl">
+    <div class="code-block active" id="tab-mcp">
+<pre><span style="color:#8b949e"># AI agents call tools directly — no HTTP, no API keys needed</span>
+<span style="color:#8b949e"># Example: agent asks Claude Code to take a screenshot</span>
+
+<span style="color:#ff7b72">User:</span> Take a screenshot of https://example.com
+
+<span style="color:#ff7b72">Agent:</span> <span style="color:#8b949e">[calls take_screenshot tool]</span>
+  url: "https://example.com"
+  width: 1280
+  height: 720
+  output_path: "screenshot.png"
+
+<span style="color:#79c0ff">Result:</span> Screenshot saved to screenshot.png (16KB, 1280x720)
+
+<span style="color:#8b949e"># Works the same for QR codes, PDFs, image processing...</span>
+<span style="color:#ff7b72">User:</span> Generate a QR code for my website with rounded style
+
+<span style="color:#ff7b72">Agent:</span> <span style="color:#8b949e">[calls generate_qr_code tool]</span>
+  data: "https://mysite.com"
+  style: "rounded"
+  fg_color: "#3b82f6"
+
+<span style="color:#79c0ff">Result:</span> QR code saved to qr.png (24KB, 400x400)</pre>
+    </div>
+
+    <div class="code-block" id="tab-curl">
 <pre><span style="color:#8b949e"># Take a screenshot</span>
 curl "https://api.snapforge.dev/api/v1/screenshot?url=https://example.com" \
   -H "X-API-Key: YOUR_KEY" \
@@ -299,7 +378,7 @@ open(<span style="color:#a5d6ff">"resized.webp"</span>, <span style="color:#a5d6
 
 <footer>
 <div class="container">
-  <p>SnapForge API &mdash; Built for developers who ship fast.</p>
+  <p>SnapForge &mdash; File processing tools for developers and AI agents.</p>
 </div>
 </footer>
 
