@@ -55,7 +55,14 @@ async def checkout(
 @router.get("/billing/success")
 async def billing_success(session_id: str = Query(...)):
     stripe.api_key = settings.stripe_secret_key
-    session = stripe.checkout.Session.retrieve(session_id)
+    try:
+        session = stripe.checkout.Session.retrieve(session_id)
+    except stripe.InvalidRequestError:
+        return HTMLResponse(
+            "<html><body style='background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif'>"
+            "<div style='text-align:center'><h2>Session not found</h2><p style='color:#94a3b8'>The checkout session may have expired. <a href='/#pricing' style='color:#3b82f6'>Try again</a></p></div></body></html>",
+            status_code=400,
+        )
 
     email = session.customer_email or session.customer_details.email
     stripe_customer_id = session.customer
