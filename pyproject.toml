@@ -19,6 +19,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["ruff", "pytest", "pytest-asyncio"]
 
+[tool.setuptools.package-data]
+snapforge = ["templates/*.html"]
+
 [tool.ruff]
 line-length = 120
 target-version = "py311"
