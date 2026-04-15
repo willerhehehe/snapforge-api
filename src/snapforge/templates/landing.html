@@ -82,6 +82,7 @@ pre{font-family:var(--mono);font-size:13px;line-height:1.7;color:#c9d1d9}
 footer{border-top:1px solid var(--border);padding:30px 0;text-align:center;color:var(--muted);font-size:13px}
 @media(max-width:640px){.hero h1{font-size:32px}.grid{grid-template-columns:1fr}.price-cards{flex-direction:column;align-items:center}}
 </style>
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
 </head>
 <body>
 
@@ -396,6 +397,22 @@ document.querySelectorAll('.code-tab').forEach(tab=>{
     document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
   });
 });
+var paddleReady=false;
+fetch('/billing/config').then(function(r){return r.json()}).then(function(cfg){
+  if(cfg.provider==='paddle'){
+    Paddle.Environment.set(cfg.paddle_environment);
+    Paddle.Setup({
+      seller: null,
+      eventCallback: function(ev){
+        if(ev.name==='checkout.completed'){
+          window.location.href='/billing/success';
+        }
+      }
+    });
+    window._paddlePrices=cfg.prices;
+    paddleReady=true;
+  }
+});
 function promptEmail(plan){
   var email=window.prompt('Enter your email to '+(plan==='free'?'get a free API key':'subscribe')+':','');
   if(!email||email.indexOf('@')===-1)return;
@@ -404,8 +421,15 @@ function promptEmail(plan){
       if(d.api_key){showKeyModal(d.api_key);}
       else window.alert(d.message||'Error creating key');
     });
+  }else if(paddleReady && window._paddlePrices && window._paddlePrices[plan]){
+    Paddle.Checkout.open({
+      items:[{priceId:window._paddlePrices[plan],quantity:1}],
+      customer:{email:email},
+      customData:{email:email},
+      settings:{displayMode:'overlay',theme:'dark',successUrl:window.location.origin+'/billing/success'}
+    });
   }else{
-    window.location.assign('/checkout?plan='+plan+'&email='+encodeURIComponent(email));
+    window.alert('Payment system is loading, please try again in a moment.');
   }
 }
 function showKeyModal(key){

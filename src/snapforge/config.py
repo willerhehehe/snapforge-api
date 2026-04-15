@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     port: int = 8080
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
+    paddle_api_key: str = ""
+    paddle_webhook_secret: str = ""
+    paddle_environment: str = "sandbox"
+    paddle_price_pro: str = ""
+    paddle_price_business: str = ""
     base_url: str = ""
     session_secret: str = "snapforge-session-secret-change-me"
     smtp_user: str = ""
