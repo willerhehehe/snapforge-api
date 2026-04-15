@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
-from snapforge.routers import screenshot, qrcode, og_image, image, pdf, billing
+from snapforge.routers import screenshot, qrcode, og_image, image, pdf, billing, dashboard
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
@@ -42,6 +42,7 @@ def create_app() -> FastAPI:
     app.include_router(image.router, prefix="/api/v1", tags=["image"])
     app.include_router(pdf.router, prefix="/api/v1", tags=["pdf"])
     app.include_router(billing.router, tags=["billing"])
+    app.include_router(dashboard.router, tags=["dashboard"])
 
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     def landing():
