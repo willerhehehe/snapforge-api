@@ -50,6 +50,18 @@ def create_app() -> FastAPI:
     def landing():
         return (TEMPLATES_DIR / "landing.html").read_text()
 
+    @app.get("/terms", response_class=HTMLResponse, include_in_schema=False)
+    def terms():
+        return (TEMPLATES_DIR / "terms.html").read_text()
+
+    @app.get("/privacy", response_class=HTMLResponse, include_in_schema=False)
+    def privacy():
+        return (TEMPLATES_DIR / "privacy.html").read_text()
+
+    @app.get("/refund", response_class=HTMLResponse, include_in_schema=False)
+    def refund():
+        return (TEMPLATES_DIR / "refund.html").read_text()
+
     @app.get("/health")
     def health():
         return {"status": "ok", "version": "0.1.0"}
