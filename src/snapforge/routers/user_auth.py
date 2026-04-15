@@ -79,16 +79,17 @@ async def do_login(request: Request):
     body = await request.json()
     key = body.get("api_key", "").strip()
 
+    from fastapi.responses import JSONResponse
+
     if settings.api_key and key == settings.api_key:
-        response = RedirectResponse("/admin", status_code=303)
-        create_session(response, key, role="admin")
-        return {"ok": True, "redirect": "/admin"}
+        resp = JSONResponse({"ok": True, "redirect": "/admin"})
+        create_session(resp, key, role="admin")
+        return resp
 
     customer = get_customer_by_api_key(key)
     if not customer:
         return {"ok": False, "error": "Invalid API Key"}
 
-    from fastapi.responses import JSONResponse
     resp = JSONResponse({"ok": True, "redirect": "/dashboard"})
     create_session(resp, key, role="user")
     return resp
