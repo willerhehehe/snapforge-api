@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     paddle_api_key: str = ""
     paddle_webhook_secret: str = ""
+    paddle_client_token: str = ""
     paddle_environment: str = "sandbox"
     paddle_price_pro: str = ""
     paddle_price_business: str = ""

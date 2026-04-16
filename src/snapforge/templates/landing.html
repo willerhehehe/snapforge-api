@@ -402,7 +402,7 @@ fetch('/billing/config').then(function(r){return r.json()}).then(function(cfg){
   if(cfg.provider==='paddle'){
     Paddle.Environment.set(cfg.paddle_environment);
     Paddle.Setup({
-      seller: null,
+      token: cfg.paddle_client_token,
       eventCallback: function(ev){
         if(ev.name==='checkout.completed'){
           window.location.href='/billing/success';

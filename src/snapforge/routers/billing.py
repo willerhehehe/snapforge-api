@@ -44,6 +44,7 @@ async def billing_config():
     return {
         "provider": "paddle" if settings.paddle_api_key else "stripe",
         "paddle_environment": "sandbox" if is_sandbox else "production",
+        "paddle_client_token": settings.paddle_client_token,
         "prices": PADDLE_PRICE_IDS,
     }
 
