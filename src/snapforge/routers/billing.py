@@ -12,6 +12,7 @@ from snapforge.db import (
     create_customer, get_customer_by_email,
     get_customer_by_stripe_id, upgrade_customer, create_subscription,
 )
+from snapforge.services.email import send_api_key_email
 
 router = APIRouter()
 
@@ -148,6 +149,7 @@ async def paddle_webhook(request: Request):
                 customer = get_customer_by_email(email)
             else:
                 customer = create_customer(email, stripe_customer_id=paddle_customer_id, tier=tier)
+                send_api_key_email(email, customer["api_key"])
 
             if subscription_id and price_id:
                 create_subscription(
@@ -173,6 +175,7 @@ async def paddle_webhook(request: Request):
             customer = get_customer_by_email(email)
             if not customer:
                 customer = create_customer(email, stripe_customer_id=paddle_customer_id, tier=tier)
+                send_api_key_email(email, customer["api_key"])
             elif customer.get("stripe_customer_id") != paddle_customer_id:
                 from snapforge.db import _conn
                 from datetime import datetime, timezone
