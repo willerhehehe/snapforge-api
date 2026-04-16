@@ -431,7 +431,7 @@ function promptEmail(plan){
         items:[{priceId:window._paddlePrices[plan],quantity:1}],
         customer:{email:email},
         customData:{email:email},
-        settings:{displayMode:'overlay',theme:'dark',successUrl:window.location.origin+'/billing/success'}
+        settings:{displayMode:'overlay',theme:'dark',successUrl:window.location.origin+'/billing/success?email='+encodeURIComponent(email)}
       });
     });
   }else{

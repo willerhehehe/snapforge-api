@@ -58,20 +58,41 @@ async def billing_config():
 
 
 @router.get("/billing/success")
-async def billing_success():
-    return HTMLResponse("""<!DOCTYPE html>
+async def billing_success(email: str = Query(default="")):
+    customer = get_customer_by_email(email) if email else None
+
+    if customer:
+        api_key = customer["api_key"]
+        tier = customer["tier"]
+        limit = customer["requests_limit"]
+        key_html = f"""
+<div class="key-box">
+  <p style="color:#e2e8f0;font-size:14px;margin-bottom:8px">Your API Key:</p>
+  <code id="apikey">{api_key}</code>
+  <button onclick="navigator.clipboard.writeText(document.getElementById('apikey').textContent).then(function(){{this.textContent='Copied!'}}.bind(this))">Copy</button>
+</div>
+<p style="margin-bottom:8px"><strong style="color:#e2e8f0">Plan:</strong> {tier.title()} &mdash; {limit:,} requests/month</p>"""
+    else:
+        key_html = """
+<p>Your subscription is being processed. Your API key will be ready shortly.</p>
+<p style="font-size:13px">Refresh this page in a few seconds, or check your dashboard.</p>"""
+
+    return HTMLResponse(f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SnapForge — Subscription Active</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
-.card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:48px;max-width:500px;text-align:center}
-h1{font-size:28px;margin-bottom:8px}p{color:#94a3b8;margin-bottom:24px}
-.badge{display:inline-block;background:#3b82f620;color:#3b82f6;padding:4px 12px;border-radius:12px;font-size:13px;font-weight:600;margin-bottom:16px}
-a{color:#3b82f6;text-decoration:none}a:hover{text-decoration:underline}
+<style>*{{margin:0;padding:0;box-sizing:border-box}}body{{font-family:-apple-system,sans-serif;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}}
+.card{{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:48px;max-width:520px;text-align:center}}
+h1{{font-size:28px;margin-bottom:8px}}p{{color:#94a3b8;margin-bottom:24px}}
+.badge{{display:inline-block;background:#3b82f620;color:#3b82f6;padding:4px 12px;border-radius:12px;font-size:13px;font-weight:600;margin-bottom:16px}}
+a{{color:#3b82f6;text-decoration:none}}a:hover{{text-decoration:underline}}
+.key-box{{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:16px;margin:20px 0;text-align:left}}
+.key-box code{{display:block;font-size:13px;color:#22d3ee;word-break:break-all;margin-bottom:12px;font-family:monospace}}
+.key-box button{{background:#3b82f6;color:#fff;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px}}
+.key-box button:hover{{background:#2563eb}}
 </style></head><body><div class="card">
 <div class="badge">Subscription Active</div>
 <h1>You're all set!</h1>
-<p>Your subscription is being processed. You'll receive your API key and plan details shortly via webhook.</p>
-<p style="font-size:13px">If you already have an account, your plan has been upgraded automatically.</p>
+{key_html}
 <p style="margin-top:24px"><a href="/login">Login to Dashboard</a> &middot; <a href="/docs">API Docs</a> &middot; <a href="/">Home</a></p>
 </div></body></html>""")
 
