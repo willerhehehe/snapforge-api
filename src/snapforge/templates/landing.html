@@ -422,11 +422,17 @@ function promptEmail(plan){
       else window.alert(d.message||'Error creating key');
     });
   }else if(paddleReady && window._paddlePrices && window._paddlePrices[plan]){
-    Paddle.Checkout.open({
-      items:[{priceId:window._paddlePrices[plan],quantity:1}],
-      customer:{email:email},
-      customData:{email:email},
-      settings:{displayMode:'overlay',theme:'dark',successUrl:window.location.origin+'/billing/success'}
+    fetch('/billing/check-subscription?email='+encodeURIComponent(email)).then(function(r){return r.json()}).then(function(d){
+      if(d.subscribed){
+        window.alert('This email already has an active '+d.tier+' subscription. Please log in to your dashboard to manage your plan.');
+        return;
+      }
+      Paddle.Checkout.open({
+        items:[{priceId:window._paddlePrices[plan],quantity:1}],
+        customer:{email:email},
+        customData:{email:email},
+        settings:{displayMode:'overlay',theme:'dark',successUrl:window.location.origin+'/billing/success'}
+      });
     });
   }else{
     window.alert('Payment system is loading, please try again in a moment.');

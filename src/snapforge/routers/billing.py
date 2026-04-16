@@ -37,6 +37,14 @@ async def free_key(email: str = Query(...)):
     return {"api_key": customer["api_key"], "tier": "free", "requests_limit": 100}
 
 
+@router.get("/billing/check-subscription")
+async def check_subscription(email: str = Query(...)):
+    customer = get_customer_by_email(email)
+    if customer and customer["tier"] != "free":
+        return {"subscribed": True, "tier": customer["tier"]}
+    return {"subscribed": False}
+
+
 @router.get("/billing/config")
 async def billing_config():
     _init_paddle_prices()
